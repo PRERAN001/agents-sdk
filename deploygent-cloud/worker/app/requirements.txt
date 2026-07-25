@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+gitpython
+python-dotenv
+pymongo
+psutil
+requests

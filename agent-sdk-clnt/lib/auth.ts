@@ -1,17 +1,10 @@
 import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
-
 import { connectDB } from "./mongodb";
 import User from "../models/user";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID!,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-    }),
-
     GitHubProvider({
       clientId: process.env.AUTH_GITHUB_ID!,
       clientSecret: process.env.AUTH_GITHUB_SECRET!,
@@ -47,7 +40,7 @@ export const authOptions: NextAuthOptions = {
 
         return true;
       } catch (error) {
-        console.error(error);
+        console.error("Error in signIn callback:", error);
         return false;
       }
     },

@@ -1,41 +1,44 @@
 "use client";
 
 import StatCard from "@/components/dashboard/StatCard";
-import {
-  Rocket,
-  Activity,
-  Server,
-  Gauge,
-} from "lucide-react";
+import { Rocket, Activity, Server, ShieldCheck } from "lucide-react";
 
-export default function ProjectStats() {
+interface ProjectStatsProps {
+  deploymentCount?: number;
+  executionCount?: number;
+  status?: string;
+}
+
+export default function ProjectStats({
+  deploymentCount = 1,
+  executionCount = 0,
+  status = "Running",
+}: ProjectStatsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <StatCard
+        title="Deployments"
+        value={deploymentCount.toString()}
+        icon={Rocket}
+      />
 
-     <StatCard
-  title="Deployments"
-  value="14"
-  icon={Rocket}
-/>
+      <StatCard
+        title="Live Executions"
+        value={executionCount.toString()}
+        icon={Activity}
+      />
 
-<StatCard
-  title="Executions"
-  value="421"
-  icon={Activity}
-/>
+      <StatCard
+        title="API Server Status"
+        value={status}
+        icon={Server}
+      />
 
-<StatCard
-  title="API Calls"
-  value="25.4K"
-  icon={Server}
-/>
-
-<StatCard
-  title="Uptime"
-  value="99.99%"
-  icon={Gauge}
-/>
-
+      <StatCard
+        title="Health Check"
+        value="100%"
+        icon={ShieldCheck}
+      />
     </div>
   );
 }

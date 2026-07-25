@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-
 import {
   User,
   CreditCard,
@@ -37,89 +36,51 @@ export default function UserDropdown({
 }: UserDropdownProps) {
   return (
     <DropdownMenu>
-
-      <DropdownMenuTrigger asChild>
-
-        <button className="rounded-full outline-none ring-offset-background focus-visible:ring-2">
-
-          <Avatar>
-
-            <AvatarImage src={image} />
-
-            <AvatarFallback>
-              {name.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-
-          </Avatar>
-
-        </button>
-
+      <DropdownMenuTrigger className="rounded-full outline-none ring-offset-background focus-visible:ring-2 border-0 bg-transparent p-0">
+        <Avatar>
+          <AvatarImage src={image} />
+          <AvatarFallback>
+            {name.slice(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="end"
-        className="w-64"
-      >
+      <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>
-
           <p className="font-medium">{name}</p>
-
-          <p className="text-xs text-muted-foreground">
-            {email}
-          </p>
-
+          <p className="text-xs text-muted-foreground">{email}</p>
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild>
-
-          <Link href="/dashboard/profile">
-
+        <DropdownMenuItem>
+          <Link href="/dashboard/profile" className="flex items-center w-full">
             <User className="mr-2 h-4 w-4" />
-
             Profile
-
           </Link>
-
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild>
-
-          <Link href="/dashboard/billing">
-
+        <DropdownMenuItem>
+          <Link href="/dashboard/billing" className="flex items-center w-full">
             <CreditCard className="mr-2 h-4 w-4" />
-
             Billing
-
           </Link>
-
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild>
-
-          <Link href="/dashboard/settings">
-
+        <DropdownMenuItem>
+          <Link href="/dashboard/settings" className="flex items-center w-full">
             <Settings className="mr-2 h-4 w-4" />
-
             Settings
-
           </Link>
-
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem className="text-red-500">
-
+        <DropdownMenuItem className="text-red-500 cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
-
           Logout
-
         </DropdownMenuItem>
-
       </DropdownMenuContent>
-
     </DropdownMenu>
   );
 }
