@@ -1,22 +1,19 @@
 import importlib.util
-import os
+from pathlib import Path
 
 
-def load_agent():
+def load_agent(path):
 
-    path = os.path.join(
-        os.getcwd(),
-        "agent.py"
-    )
+    path = Path(path)
 
-    if not os.path.exists(path):
+    if not path.exists():
         raise FileNotFoundError(
-            "agent.py not found"
+            f"{path} not found"
         )
 
     spec = importlib.util.spec_from_file_location(
         "agent",
-        path
+        str(path)
     )
 
     module = importlib.util.module_from_spec(spec)
