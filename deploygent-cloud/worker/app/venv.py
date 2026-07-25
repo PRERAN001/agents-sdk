@@ -1,20 +1,61 @@
-import sys
-import subprocess
 from pathlib import Path
+import subprocess
 
 
-def create_virtual_environment(project_dir: Path):
-    venv_path = project_dir / "venv"
+def create_venv(project_dir: Path):
+    """
+    Creates a virtual environment and installs
+    DeployGent + project dependencies.
+    """
 
-    cmd = [
-    sys.executable,
-    "-m",
-    "venv",
-    str(venv_path),
-]
+    venv_dir = project_dir / "venv"
 
-    print("Running:", cmd)
+    # Create virtual environment
+    subprocess.run(
+        ["python3", "-m", "venv", str(venv_dir)],
+        check=True
+    )
 
-    subprocess.run(cmd, check=True) 
+    python = venv_dir / "bin" / "python"
+    pip = venv_dir / "bin" / "pip"
 
-    return venv_path
+    # Upgrade packaging tools
+    subprocess.run(
+        [
+            str(python),
+            "-m",
+            "pip",
+            "install",
+            "--upgrade",
+            "pip",
+            "setuptools",
+            "wheel",
+        ],
+        check=True,
+    )
+
+    # Install DeployGent SDK
+    subprocess.run(
+        [
+            str(pip),
+            "install",
+            "deploygent",
+        ],
+        check=True,
+    )
+
+    # Install project requirements (if present)
+    requirements = project_dir / "repo" / "requirements.txt"
+
+    if requirements.exists():
+        subprocess.run(
+            [
+                str(pip),
+                "install",
+                "-r",
+                str(requirements),
+            ],
+            check=True,
+        )
+
+    return python
