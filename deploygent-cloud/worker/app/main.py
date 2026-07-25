@@ -77,3 +77,13 @@ def dashboard():
         "stopped": stopped,
         "deployments": deployments_count
     }
+from .database import deployments
+
+@app.get("/deployments")
+def get_deployments():
+    docs = list(deployments.find())
+
+    for doc in docs:
+        doc["_id"] = str(doc["_id"])
+
+    return docs

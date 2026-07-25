@@ -31,7 +31,9 @@ export default function DashboardPage() {
       ]);
 
       const dashboardData = await dashboardRes.json();
+      console.log(dashboardData)
       const deploymentData = await deploymentRes.json();
+      console.log(deploymentData)
 
       setDashboard(dashboardData);
       setDeployments(deploymentData);
