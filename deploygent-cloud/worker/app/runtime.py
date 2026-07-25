@@ -9,22 +9,18 @@ def start_runtime(project_dir: Path, port: int):
     python = project_dir / "venv" / "bin" / "python"
 
     process = subprocess.Popen(
-        [
-            str(python),
-            "-m",
-            "deploygent",
-            "serve",
-            "--path",
-            str(repo),
-            "--port",
-            str(port),
-        ],
-        cwd=repo,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        bufsize=1,
-    )
+    [
+        str(python),
+        "-m",
+        "deploygent",
+        "serve",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        str(port),
+    ],
+    cwd=repo,
+)
 
     # Give the runtime a moment to start
     time.sleep(2)
