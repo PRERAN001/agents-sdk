@@ -120,7 +120,7 @@ def deploy_project(project_id: str, repo_url: str):
             deployment_id,
             "starting_runtime",
         )
-
+        print("LOADED runtime.py")
         process = start_runtime(
             project_dir,
             port,

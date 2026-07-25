@@ -4,6 +4,7 @@ import time
 
 
 def start_runtime(project_dir: Path, port: int):
+    print("ENTERED start_runtime")
     repo = project_dir / "repo"
     python = project_dir / "venv" / "bin" / "python"
 
