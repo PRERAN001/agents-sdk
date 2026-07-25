@@ -48,7 +48,7 @@ export default function NewProjectPage() {
       }
 
       const data = await res.json();
-
+      console.log("project page data",data)
       setLogs((p) => [...p, "Repository accepted"]);
       setLogs((p) => [...p, "Deployment queued"]);
 
