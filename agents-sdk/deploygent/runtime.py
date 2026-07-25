@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
-
-
+import traceback
+from fastapi.middleware.cors import CORSMiddleware
 class RunRequest(BaseModel):
     task: str
     inputs: dict = {}
@@ -13,6 +13,14 @@ def start_runtime(agent, host="0.0.0.0", port=8000):
         title=agent.name,
         version=agent.version
     )
+
+    app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
     @app.get("/")
     def root():
@@ -39,15 +47,17 @@ def start_runtime(agent, host="0.0.0.0", port=8000):
             for task in agent.tasks
         ]
 
+   
+
     @app.post("/run")
     def run(request: RunRequest):
-
         try:
-
             result = agent.run(
                 request.task,
                 request.inputs
             )
+
+            print("RESULT:", result)
 
             return {
                 "success": True,
@@ -55,12 +65,9 @@ def start_runtime(agent, host="0.0.0.0", port=8000):
                 "result": result
             }
 
-        except Exception as e:
-
-            raise HTTPException(
-                status_code=500,
-                detail=str(e)
-            )
+        except Exception:
+            traceback.print_exc()
+            raise
 
     uvicorn.run(
         app,

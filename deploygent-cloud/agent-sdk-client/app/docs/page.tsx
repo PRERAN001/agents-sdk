@@ -28,6 +28,14 @@ export default function DocsPage() {
 
   return (
     <main className="min-h-screen bg-white text-zinc-950 font-sans selection:bg-zinc-950 selection:text-white antialiased">
+      {/* Google Cursive Font Import */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
+        .font-cursive {
+          font-family: 'Caveat', cursive, sans-serif;
+        }
+      `}</style>
+
       {/* Background Subtle Grid Texture */}
       <div
         className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none"
@@ -39,13 +47,13 @@ export default function DocsPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded bg-zinc-950 text-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-3.5">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-zinc-950 text-white transition-transform group-hover:scale-105">
               <Rocket className="h-3.5 w-3.5" />
             </div>
-            <span className="text-base font-bold tracking-tight text-zinc-950">
-              DeployGent
+            <span className="text-base font-black tracking-tight text-zinc-950">
+              DeployGent<span className="font-cursive text-xl text-zinc-500 font-normal ml-0.5">.ai</span>
             </span>
           </Link>
 
@@ -77,7 +85,7 @@ export default function DocsPage() {
           <h1 className="mt-6 text-5xl font-black tracking-tighter text-zinc-950 sm:text-7xl lg:text-8xl leading-[0.95] uppercase">
             Build. <br />
             Deploy. <br />
-            Execute.
+            Execute<span className="font-cursive text-5xl sm:text-7xl lowercase text-zinc-500 font-normal ml-2">seamlessly</span>
           </h1>
 
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-zinc-600">
@@ -160,7 +168,7 @@ export default function DocsPage() {
             <div className="relative rounded-lg border border-zinc-950 bg-zinc-950 p-4 text-white shadow-md">
               <button
                 onClick={() => copyToClipboard("pip install deploygent", "install")}
-                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition"
+                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition cursor-pointer"
               >
                 {copiedId === "install" ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
               </button>
@@ -186,7 +194,7 @@ export default function DocsPage() {
                     "quickstart"
                   )
                 }
-                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition"
+                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition cursor-pointer"
               >
                 {copiedId === "quickstart" ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
               </button>
@@ -227,7 +235,7 @@ agent.serve()`}
             <div className="relative rounded-lg border border-zinc-950 bg-zinc-950 p-4 text-white shadow-md">
               <button
                 onClick={() => copyToClipboard(`@agent.task\ndef summarize(text: str) -> str:\n    return text`, "tasks")}
-                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition"
+                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition cursor-pointer"
               >
                 {copiedId === "tasks" ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
               </button>
@@ -310,7 +318,7 @@ def summarize(text: str) -> str:
             <div className="relative rounded-lg border border-zinc-950 bg-zinc-950 p-4 text-white shadow-md">
               <button
                 onClick={() => copyToClipboard("deploygent deploy", "deploy")}
-                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition"
+                className="absolute right-3 top-3 text-zinc-400 hover:text-white transition cursor-pointer"
               >
                 {copiedId === "deploy" ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
               </button>
@@ -396,7 +404,7 @@ def summarize(text: str) -> str:
                   <p className="mt-1 text-xs text-zinc-500">
                     Standard DeployGent agent implementation template.
                   </p>
-                  <button className="mt-4 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-zinc-950 group-hover:underline">
+                  <button className="mt-4 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-zinc-950 group-hover:underline cursor-pointer">
                     View Template
                     <ChevronRight size={14} />
                   </button>

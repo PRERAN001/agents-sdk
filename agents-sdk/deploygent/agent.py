@@ -19,11 +19,12 @@ class Agent:
     def env(self,envv):
         env1=Env(envv)
         self.envs.append(env1)
-    def run(self,task_name,inputs):
-        for tasks in self.tasks:
-            if tasks.name==task_name:
-                return tasks(*inputs)
+    def run(self, task_name, inputs):
+        for task in self.tasks:
+            if task.name == task_name:
+                return task.func(**inputs)
 
+        raise ValueError(f"Task '{task_name}' not found")
     
 
     def describe(self):
