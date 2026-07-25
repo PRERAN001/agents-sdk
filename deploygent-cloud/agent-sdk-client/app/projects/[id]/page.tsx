@@ -36,6 +36,7 @@ export default function ProjectPage() {
     try {
       const res = await fetch(`${API}/deployment/${id}`);
       const data = await res.json();
+      console.log("id page",data)
       setProject(data);
     } catch (error) {
       console.error("Failed to fetch project details:", error);
@@ -87,7 +88,7 @@ export default function ProjectPage() {
           </div>
 
           <Link
-            href={`/projects/${project?.project_id}/playground`}
+            href={`/projects/${project?.id}/playground`}
             className="flex items-center gap-2 rounded-lg bg-zinc-950 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-zinc-800"
           >
             <Play size={14} />

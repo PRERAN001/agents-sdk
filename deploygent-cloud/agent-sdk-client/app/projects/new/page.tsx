@@ -52,7 +52,7 @@ export default function NewProjectPage() {
       setLogs((p) => [...p, "Repository accepted"]);
       setLogs((p) => [...p, "Deployment queued"]);
 
-      router.push(`/projects/${data.deployment_id}`);
+      router.push(`/projects/${data.project_id}`);
     } catch (err: any) {
       setLogs((p) => [...p, err.message || "An error occurred"]);
     } finally {
