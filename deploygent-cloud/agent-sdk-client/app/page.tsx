@@ -11,7 +11,7 @@ export default function DeployPage() {
         setLoading(true);
 
         const res = await fetch(
-            "http://localhost:5000/deploy",
+            "16.16.110.104/deploy",
             {
 
                 method:"POST",

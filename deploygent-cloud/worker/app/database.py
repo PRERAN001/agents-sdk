@@ -6,7 +6,7 @@ from .config import MONGO_URI
 
 
 
-client = MongoClient("mongodb://localhost:27017")
+client = MongoClient("mongodb+srv://preran248:preran123@cluster0.gqh6dfj.mongodb.net/?appName=Cluster0")
 
 db = client["deploygent"]
 
