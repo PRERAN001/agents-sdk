@@ -44,6 +44,16 @@ def create_virtual_environment(project_dir: Path):
         check=True,
     )
 
+    subprocess.run(
+        [
+            str(pip),
+            "install",
+            "deploygent",
+            "flask",
+        ],
+        check=True,
+    )
+
     # Install project requirements (if present)
     requirements = project_dir / "repo" / "requirements.txt"
 
