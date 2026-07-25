@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   ExternalLink,
   Play,
+  Code2,
 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
@@ -34,10 +35,10 @@ export default function ProjectPage() {
   async function fetchProject() {
     try {
       const res = await fetch(`${API}/deployment/${id}`);
-
       const data = await res.json();
-
       setProject(data);
+    } catch (error) {
+      console.error("Failed to fetch project details:", error);
     } finally {
       setLoading(false);
     }
@@ -45,194 +46,222 @@ export default function ProjectPage() {
 
   if (loading)
     return (
-      <main className="min-h-screen bg-[#050505] flex items-center justify-center text-white">
-        <Loader2 className="animate-spin" size={42} />
+      <main className="min-h-screen bg-white text-zinc-950 flex flex-col items-center justify-center gap-3 font-sans">
+        <Loader2 className="animate-spin text-zinc-950" size={32} />
+        <span className="font-mono text-xs uppercase tracking-widest text-zinc-500">
+          Loading Instance Details...
+        </span>
       </main>
     );
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white">
-      {/* Header */}
+    <main className="min-h-screen bg-white text-zinc-950 font-sans selection:bg-zinc-950 selection:text-white antialiased pb-24">
+      {/* Background Subtle Grid Texture */}
+      <div
+        className="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `radial-gradient(#000 1px, transparent 1px)`,
+          backgroundSize: `24px 24px`,
+        }}
+      />
 
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur-xl">
+      {/* Header */}
+      <header className="sticky top-0 z-20 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
           <div>
             <Link
               href="/projects"
-              className="mb-3 inline-flex items-center gap-2 text-white/50 hover:text-white"
+              className="mb-2 inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-zinc-500 transition hover:text-zinc-950"
             >
-              <ArrowLeft size={16} />
-              Back
+              <ArrowLeft size={14} />
+              Back to Projects
             </Link>
 
-            <h1 className="text-4xl font-bold">
-              {project.name}
+            <h1 className="text-3xl font-black tracking-tight text-zinc-950 uppercase">
+              {project?.name || "Agent Instance"}
             </h1>
 
-            <p className="mt-2 text-white/50">
-              {project.project_id}
+            <p className="mt-1 font-mono text-xs text-zinc-400">
+              ID: {project?.project_id}
             </p>
           </div>
 
           <Link
-            href={`/projects/${project.project_id}/playground`}
-            className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-medium text-black"
+            href={`/projects/${project?.project_id}/playground`}
+            className="flex items-center gap-2 rounded-lg bg-zinc-950 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-zinc-800"
           >
-            <Play size={18} />
+            <Play size={14} />
             Open Playground
           </Link>
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-8 py-10">
+      <section className="mx-auto max-w-7xl px-8 pt-10 space-y-8">
+        {/* Metric Cards Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between text-zinc-500">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest">
+                Status
+              </span>
+              <Activity size={18} className="text-zinc-950" />
+            </div>
 
-        {/* Overview */}
+            <div className="mt-4 flex items-center gap-2">
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${
+                  project?.status === "running"
+                    ? "bg-zinc-950 animate-pulse"
+                    : "bg-zinc-400"
+                }`}
+              />
+              <span className="font-mono text-2xl font-black uppercase text-zinc-950">
+                {project?.status}
+              </span>
+            </div>
+          </div>
 
-        <div className="grid gap-6 lg:grid-cols-4">
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between text-zinc-500">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest">
+                Port
+              </span>
+              <Server size={18} className="text-zinc-950" />
+            </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <Activity />
-
-            <p className="mt-6 text-white/50">
-              Status
-            </p>
-
-            <h2
-              className={`mt-3 text-3xl font-bold ${
-                project.status === "running"
-                  ? "text-green-400"
-                  : "text-red-400"
-              }`}
-            >
-              {project.status}
+            <h2 className="mt-4 font-mono text-3xl font-black text-zinc-950">
+              {project?.runtime?.port ?? "N/A"}
             </h2>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <Server />
-
-            <p className="mt-6 text-white/50">
-              Port
-            </p>
-
-            <h2 className="mt-3 text-3xl font-bold">
-              {project.runtime.port}
-            </h2>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <Globe />
-
-            <p className="mt-6 text-white/50">
-              Runtime URL
-            </p>
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between text-zinc-500">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest">
+                Runtime URL
+              </span>
+              <Globe size={18} className="text-zinc-950" />
+            </div>
 
             <a
-              href={project.runtime.url}
+              href={project?.runtime?.url}
               target="_blank"
-              className="mt-3 flex items-center gap-2 break-all text-lg text-white hover:underline"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 font-mono text-sm font-bold text-zinc-950 hover:underline truncate max-w-full"
             >
-              {project.runtime.url}
-
-              <ExternalLink size={16} />
+              <span className="truncate">{project?.runtime?.url || "N/A"}</span>
+              <ExternalLink size={14} className="shrink-0" />
             </a>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <Rocket />
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between text-zinc-500">
+              <span className="font-mono text-xs font-bold uppercase tracking-widest">
+                Tasks
+              </span>
+              <Rocket size={18} className="text-zinc-950" />
+            </div>
 
-            <p className="mt-6 text-white/50">
-              Tasks
-            </p>
-
-            <h2 className="mt-3 text-3xl font-bold">
-              {project.metadata.tasks.length}
+            <h2 className="mt-4 font-mono text-3xl font-black text-zinc-950">
+              {project?.metadata?.tasks?.length ?? 0}
             </h2>
           </div>
         </div>
 
-        {/* Metadata */}
+        {/* Tasks Grid */}
+        <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-6">
+            <Code2 size={20} className="text-zinc-950" />
+            <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
+              Available Tasks
+            </h2>
+          </div>
 
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
-
-          <h2 className="text-2xl font-semibold">
-            Agent Metadata
-          </h2>
-
-          <pre className="mt-8 overflow-auto rounded-2xl border border-white/10 bg-black/40 p-6 text-sm text-white/70">
-            {JSON.stringify(project.metadata, null, 2)}
-          </pre>
-        </div>
-
-        {/* Tasks */}
-
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
-
-          <h2 className="text-2xl font-semibold">
-            Available Tasks
-          </h2>
-
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-
-            {project.metadata.tasks.map(
-              (task: any) => (
-                <div
-                  key={task.name}
-                  className="rounded-2xl border border-white/10 bg-black/30 p-6"
-                >
-                  <h3 className="text-2xl font-semibold">
+          <div className="grid gap-4 md:grid-cols-2">
+            {project?.metadata?.tasks?.map((task: any) => (
+              <div
+                key={task.name}
+                className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-6 transition hover:border-zinc-300"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-zinc-950 tracking-tight">
                     {task.name}
                   </h3>
-
-                  <p className="mt-3 text-white/50">
-                    {task.description}
-                  </p>
-
-                  <p className="mt-6 text-sm text-white/40">
-                    Inputs : {task.inputs.length}
-                  </p>
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-500 border border-zinc-200 bg-white px-2 py-0.5 rounded">
+                    {task.inputs?.length ?? 0} INPUTS
+                  </span>
                 </div>
-              )
-            )}
+
+                <p className="mt-2 text-xs text-zinc-600 leading-relaxed">
+                  {task.description || "No description provided."}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Runtime */}
-
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
-
-          <div className="flex items-center gap-3">
-
-            <Terminal />
-
-            <h2 className="text-2xl font-semibold">
-              Runtime
+        {/* Runtime Diagnostics */}
+        <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-6">
+            <Terminal size={20} className="text-zinc-950" />
+            <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
+              Runtime Process Configuration
             </h2>
-
           </div>
 
-          <div className="mt-8 space-y-4 text-white/60">
+          <div className="grid gap-3 font-mono text-xs sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4">
+              <span className="text-zinc-400 block font-bold uppercase tracking-wider mb-1">
+                HOST
+              </span>
+              <span className="font-bold text-zinc-950">
+                {project?.runtime?.host || "localhost"}
+              </span>
+            </div>
 
-            <p>
-              Host : {project.runtime.host}
-            </p>
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4">
+              <span className="text-zinc-400 block font-bold uppercase tracking-wider mb-1">
+                PORT
+              </span>
+              <span className="font-bold text-zinc-950">
+                {project?.runtime?.port || "N/A"}
+              </span>
+            </div>
 
-            <p>
-              Port : {project.runtime.port}
-            </p>
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 truncate">
+              <span className="text-zinc-400 block font-bold uppercase tracking-wider mb-1">
+                URL
+              </span>
+              <span className="font-bold text-zinc-950 truncate block">
+                {project?.runtime?.url || "N/A"}
+              </span>
+            </div>
 
-            <p>
-              URL : {project.runtime.url}
-            </p>
-
-            <p>
-              PID : {project.runtime.pid}
-            </p>
-
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4">
+              <span className="text-zinc-400 block font-bold uppercase tracking-wider mb-1">
+                PID
+              </span>
+              <span className="font-bold text-zinc-950">
+                {project?.runtime?.pid || "N/A"}
+              </span>
+            </div>
           </div>
-
         </div>
 
+        {/* JSON Metadata Output */}
+        <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
+              Raw Metadata Inspect
+            </h2>
+            <span className="font-mono text-xs font-semibold text-zinc-400 uppercase">
+              AST AST_SPEC_V1
+            </span>
+          </div>
+
+          <pre className="overflow-auto rounded-lg border border-zinc-950 bg-zinc-950 p-6 font-mono text-xs leading-relaxed text-zinc-200 shadow-inner max-h-96">
+            {JSON.stringify(project?.metadata, null, 2)}
+          </pre>
+        </div>
       </section>
     </main>
   );

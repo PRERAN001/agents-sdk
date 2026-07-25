@@ -37,17 +37,16 @@ def deploy(request: DeployRequest):
         request.repo_url
     )
 
-@app.get("/deployment/{id}")
-def get_deployment(id: str):
-    deployment = deployments.find_one({"_id": ObjectId(id)})
+@app.get("/deployment/{project_id}")
+def get_deployment(project_id: str):
+    deployment = deployments.find_one({"project_id": project_id})
 
     if not deployment:
         raise HTTPException(status_code=404, detail="Deployment not found")
 
     return {
-        "_id": str(deployment["_id"]),
-        "project_id": deployment["project_id"],
-        "name": deployment["metadata"]["name"],
+        "id": deployment["project_id"],
+        "repo_url": deployment["repo_url"],
         "status": deployment["status"],
         "runtime": {
             "port": deployment["port"],
