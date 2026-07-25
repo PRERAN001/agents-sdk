@@ -44,9 +44,18 @@ def get_deployment(id: str):
     if not deployment:
         raise HTTPException(status_code=404, detail="Deployment not found")
 
-    deployment["_id"] = str(deployment["_id"])
-
-    return deployment
+    return {
+        "_id": str(deployment["_id"]),
+        "project_id": deployment["project_id"],
+        "name": deployment["metadata"]["name"],
+        "status": deployment["status"],
+        "runtime": {
+            "port": deployment["port"],
+            "pid": deployment["pid"],
+            "url": f"http://16.16.110.104:{deployment['port']}"
+        },
+        "metadata": deployment["metadata"]
+    }
 @app.get("/projects")
 def get_projects():
     return list(
