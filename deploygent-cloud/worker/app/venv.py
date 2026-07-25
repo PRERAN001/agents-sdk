@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess
 
 
-def create_venv(project_dir: Path):
+def create_virtual_environment(project_dir: Path):
     """
     Creates a virtual environment and installs
     DeployGent + project dependencies.
