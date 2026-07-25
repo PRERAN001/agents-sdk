@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from .deploy import deploy_project
-
+from fastapi import HTTPException
+from .database import deployments
 app = FastAPI(
     title="DeployGent Worker"
 )
@@ -34,3 +35,50 @@ def deploy(request: DeployRequest):
         request.project_id,
         request.repo_url
     )
+
+@app.get("/deployment/{project_id}")
+def get_deployment(project_id: str):
+
+    deployment = deployments.find_one(
+        {"project_id": project_id},
+        {"_id": 0}
+    )
+
+    if deployment is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Deployment not found"
+        )
+
+    return deployment
+
+@app.get("/projects")
+def get_projects():
+    return list(
+        deployments.find(
+            {},
+            {"_id": 0}
+        )
+    )
+
+@app.get("/dashboard")
+def dashboard():
+
+    total_projects = deployments.count_documents({})
+
+    running = deployments.count_documents({
+        "status": "running"
+    })
+
+    stopped = deployments.count_documents({
+        "status": "stopped"
+    })
+
+    deployments_count = deployments.count_documents({})
+
+    return {
+        "projects": total_projects,
+        "running": running,
+        "stopped": stopped,
+        "deployments": deployments_count
+    }
