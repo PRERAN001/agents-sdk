@@ -1,5 +1,6 @@
-# DeployGent
 
+# DeployGent
+<img width="2146" height="733" alt="ChatGPT Image Jul 26, 2026, 09_13_00 AM" src="https://github.com/user-attachments/assets/5d1f504c-d43d-42b5-8b0b-d98f8f6fae38" />
 DeployGent is an open-source framework for building, deploying, and running AI agents without writing backend APIs, dashboards, or deployment infrastructure.
 
 Define your agent using simple Python code, describe its inputs and outputs, and DeployGent automatically generates an interactive UI, exposes REST endpoints, and deploys your agent to the cloud.
