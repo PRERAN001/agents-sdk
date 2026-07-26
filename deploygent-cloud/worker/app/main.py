@@ -17,6 +17,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "https://agents-sdk-seven.vercel.app"
+        "https://deploygent.preran-s.me"
             # Next.js
     ],
     allow_credentials=True,
