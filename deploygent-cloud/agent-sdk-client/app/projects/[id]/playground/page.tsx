@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   Loader2,
   Play,
-  CheckCircle2,
   FileText,
   ImageIcon,
   Hash,
@@ -25,13 +24,7 @@ import {
   Music,
   Video,
   Braces,
-  Download,
   Search,
-  Table as TableIcon,
-  FileArchive,
-  FileSpreadsheet,
-  FileType,
-  File as FileIcon,
   ChevronDown,
   ChevronUp,
   AlertCircle,
@@ -87,40 +80,6 @@ interface TaskInput {
   schema?: any;
 }
 
-type OutputType =
-  | "text"
-  | "markdown"
-  | "json"
-  | "image"
-  | "file"
-  | "audio"
-  | "video"
-  | "html"
-  | "table"
-  | "pdf"
-  | "csv"
-  | "zip"
-  | "success"
-  | "error";
-
-interface TaskOutput {
-  type: OutputType;
-  title?: string;
-  description?: string;
-  downloadable?: boolean;
-  preview?: boolean;
-  data?: any;
-  message?: string;
-  // type-specific
-  pretty?: boolean;
-  collapsible?: boolean;
-  format?: string;
-  extension?: string;
-  sortable?: boolean;
-  searchable?: boolean;
-  pagination?: boolean;
-}
-
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
@@ -167,47 +126,10 @@ function iconForInput(type: InputType) {
   }
 }
 
-function iconForOutput(type: OutputType) {
-  switch (type) {
-    case "image":
-      return ImageIcon;
-    case "audio":
-      return Music;
-    case "video":
-      return Video;
-    case "table":
-      return TableIcon;
-    case "zip":
-      return FileArchive;
-    case "csv":
-      return FileSpreadsheet;
-    case "pdf":
-      return FileType;
-    case "file":
-      return FileIcon;
-    case "json":
-      return Braces;
-    case "success":
-      return CheckCircle2;
-    case "error":
-      return AlertCircle;
-    default:
-      return Code2;
-  }
-}
-
 function baseInputClass(disabled?: boolean) {
   return `h-12 w-full rounded-lg border border-zinc-300 bg-zinc-50/50 pl-11 pr-4 font-mono text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white ${
     disabled ? "cursor-not-allowed opacity-50" : ""
   }`;
-}
-
-function downloadHref(data: any): string | null {
-  if (!data) return null;
-  if (typeof data === "string") return data;
-  if (data.url) return data.url;
-  if (data.base64) return data.base64;
-  return null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -691,329 +613,31 @@ function InputField({
 /* Output Renderer Component                                           */
 /* ------------------------------------------------------------------ */
 
-function OutputPanel({ output }: { output: TaskOutput }) {
+function OutputPanel({ output }: { output: any }) {
   const [expanded, setExpanded] = useState(true);
-  const [tableSearch, setTableSearch] = useState("");
-  const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortAsc, setSortAsc] = useState(true);
-  const [page, setPage] = useState(0);
-  const pageSize = 10;
 
-  const Icon = iconForOutput(output.type);
-  const href = downloadHref(output.data);
-
-  const header = (output.title || output.description) && (
-    <div className="mb-4">
-      {output.title && (
-        <h3 className="font-mono text-sm font-bold uppercase tracking-wider text-zinc-800">
-          {output.title}
-        </h3>
-      )}
-      {output.description && (
-        <p className="mt-1 text-xs text-zinc-500">{output.description}</p>
-      )}
-    </div>
-  );
-
-  const downloadButton = output.downloadable && href && (
-    <a
-      href={href}
-      download
-      className="mt-4 inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-zinc-700 transition hover:border-zinc-950 hover:text-zinc-950"
-    >
-      <Download size={14} />
-      Download
-    </a>
-  );
+  const isString = typeof output === "string";
+  const pretty = isString ? output : JSON.stringify(output, null, 2);
 
   return (
-    <div>
-      {header}
-
-      {/* TEXT */}
-      {output.type === "text" && (
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-6 font-mono text-sm text-zinc-950 leading-relaxed whitespace-pre-wrap">
-          {output.data}
-        </div>
+    <div className="rounded-lg border border-zinc-950 bg-zinc-950 shadow-inner overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex w-full items-center justify-between px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-200"
+      >
+        <span className="flex items-center gap-2">
+          <Code2 size={14} />
+          Response
+        </span>
+        {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+      {expanded && (
+        <pre className="max-h-[32rem] overflow-auto p-6 pt-0 font-mono text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap break-words">
+          {pretty}
+        </pre>
       )}
-
-      {/* MARKDOWN */}
-      {output.type === "markdown" && (
-        <article className="prose prose-zinc max-w-none rounded-lg border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-950 leading-relaxed whitespace-pre-wrap">
-          {output.data}
-        </article>
-      )}
-
-      {/* HTML */}
-      {output.type === "html" && (
-        <div
-          className="rounded-lg border border-zinc-200 bg-white p-6 text-sm text-zinc-950 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: output.data }}
-        />
-      )}
-
-      {/* JSON */}
-      {output.type === "json" && (
-        <div className="rounded-lg border border-zinc-950 bg-zinc-950 shadow-inner overflow-hidden">
-          {output.collapsible && (
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="flex w-full items-center justify-between px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-200"
-            >
-              JSON Payload
-              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
-          )}
-          {(!output.collapsible || expanded) && (
-            <pre className="max-h-96 overflow-auto p-6 pt-0 font-mono text-xs text-zinc-200 leading-relaxed">
-              {output.pretty === false
-                ? JSON.stringify(output.data)
-                : JSON.stringify(output.data, null, 2)}
-            </pre>
-          )}
-        </div>
-      )}
-
-      {/* IMAGE */}
-      {output.type === "image" && (
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-          {output.preview !== false && (
-            <img
-              src={output.data}
-              alt={output.title || "Task execution result"}
-              className="max-h-96 rounded object-contain mx-auto"
-            />
-          )}
-          {downloadButton}
-        </div>
-      )}
-
-      {/* AUDIO */}
-      {output.type === "audio" && (
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
-          {output.preview !== false && (
-            <audio controls src={output.data} className="w-full" />
-          )}
-          {downloadButton}
-        </div>
-      )}
-
-      {/* VIDEO */}
-      {output.type === "video" && (
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-          {output.preview !== false && (
-            <video
-              controls
-              src={output.data}
-              className="max-h-96 w-full rounded object-contain"
-            />
-          )}
-          {downloadButton}
-        </div>
-      )}
-
-      {/* TABLE */}
-      {output.type === "table" && Array.isArray(output.data) && (
-        <TableOutputView
-          rows={output.data}
-          searchable={output.searchable}
-          sortable={output.sortable}
-          pagination={output.pagination}
-        />
-      )}
-
-      {/* FILE / PDF / CSV / ZIP -- generic downloadable file card */}
-      {(output.type === "file" ||
-        output.type === "pdf" ||
-        output.type === "csv" ||
-        output.type === "zip") && (
-        <div className="flex items-center gap-4 rounded-lg border border-zinc-200 bg-zinc-50 p-6">
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-zinc-950 text-white">
-            <Icon size={20} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-mono text-sm font-semibold text-zinc-900">
-              {output.title ||
-                (output.type === "file" && output.extension
-                  ? `output.${output.extension}`
-                  : `output.${output.type}`)}
-            </p>
-            <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-400">
-              {output.type}
-              {output.type === "file" && output.extension
-                ? ` · .${output.extension}`
-                : ""}
-            </p>
-          </div>
-          {output.downloadable && href && (
-            <a
-              href={href}
-              download
-              className="flex items-center gap-2 rounded-lg bg-zinc-950 px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-zinc-800"
-            >
-              <Download size={14} />
-              Download
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* SUCCESS */}
-      {output.type === "success" && (
-        <div className="flex items-center gap-3 rounded-lg border border-zinc-950 bg-zinc-950 p-5 font-mono text-xs text-white">
-          <CheckCircle2 size={18} className="text-white" />
-          <span>{output.message}</span>
-        </div>
-      )}
-
-      {/* ERROR */}
-      {output.type === "error" && (
-        <div className="flex items-center gap-3 rounded-lg border border-rose-200 bg-rose-50 p-5 font-mono text-xs font-semibold text-rose-700">
-          <AlertCircle size={16} />
-          <span>{output.message}</span>
-        </div>
-      )}
-
-      {output.type !== "image" &&
-        output.type !== "audio" &&
-        output.type !== "video" &&
-        downloadButton}
     </div>
   );
-
-  function TableOutputView({
-    rows,
-    searchable,
-    sortable,
-    pagination,
-  }: {
-    rows: any[];
-    searchable?: boolean;
-    sortable?: boolean;
-    pagination?: boolean;
-  }) {
-    const columns = useMemo(
-      () => (rows[0] ? Object.keys(rows[0]) : []),
-      [rows]
-    );
-
-    const filtered = useMemo(() => {
-      let r = rows;
-      if (searchable && tableSearch) {
-        const q = tableSearch.toLowerCase();
-        r = r.filter((row) =>
-          columns.some((c) =>
-            String(row[c] ?? "").toLowerCase().includes(q)
-          )
-        );
-      }
-      if (sortable && sortKey) {
-        r = [...r].sort((a, b) => {
-          const av = a[sortKey];
-          const bv = b[sortKey];
-          if (av === bv) return 0;
-          const cmp = av > bv ? 1 : -1;
-          return sortAsc ? cmp : -cmp;
-        });
-      }
-      return r;
-    }, [rows, tableSearch, sortKey, sortAsc, columns, searchable, sortable]);
-
-    const pageCount = pagination
-      ? Math.max(1, Math.ceil(filtered.length / pageSize))
-      : 1;
-    const pageRows = pagination
-      ? filtered.slice(page * pageSize, page * pageSize + pageSize)
-      : filtered;
-
-    return (
-      <div className="overflow-hidden rounded-lg border border-zinc-200">
-        {searchable && (
-          <div className="relative border-b border-zinc-200 bg-zinc-50 p-3">
-            <Search className="absolute left-6 top-6 text-zinc-400" size={14} />
-            <input
-              type="text"
-              placeholder="Search table..."
-              value={tableSearch}
-              onChange={(e) => {
-                setTableSearch(e.target.value);
-                setPage(0);
-              }}
-              className="h-9 w-full max-w-xs rounded-md border border-zinc-300 bg-white pl-8 pr-3 font-mono text-xs outline-none focus:border-zinc-950"
-            />
-          </div>
-        )}
-        <div className="overflow-auto">
-          <table className="w-full border-collapse text-left text-xs">
-            <thead className="bg-zinc-950">
-              <tr>
-                {columns.map((c) => (
-                  <th
-                    key={c}
-                    onClick={() => {
-                      if (!sortable) return;
-                      if (sortKey === c) setSortAsc(!sortAsc);
-                      else {
-                        setSortKey(c);
-                        setSortAsc(true);
-                      }
-                    }}
-                    className={`px-4 py-3 font-mono font-bold uppercase tracking-wider text-white ${
-                      sortable ? "cursor-pointer select-none" : ""
-                    }`}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      {c}
-                      {sortable && sortKey === c && (
-                        sortAsc ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                      )}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {pageRows.map((row, i) => (
-                <tr
-                  key={i}
-                  className="border-b border-zinc-100 font-mono text-zinc-700 last:border-0 hover:bg-zinc-50"
-                >
-                  {columns.map((c) => (
-                    <td key={c} className="px-4 py-3">
-                      {String(row[c] ?? "")}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {pagination && pageCount > 1 && (
-          <div className="flex items-center justify-between border-t border-zinc-200 bg-zinc-50 px-4 py-2.5 font-mono text-[11px] text-zinc-500">
-            <span>
-              Page {page + 1} of {pageCount}
-            </span>
-            <div className="flex gap-2">
-              <button
-                disabled={page === 0}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                className="rounded-md border border-zinc-300 bg-white px-2.5 py-1 font-semibold uppercase tracking-wider hover:border-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Prev
-              </button>
-              <button
-                disabled={page >= pageCount - 1}
-                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-                className="rounded-md border border-zinc-300 bg-white px-2.5 py-1 font-semibold uppercase tracking-wider hover:border-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -1027,7 +651,7 @@ export default function PlaygroundPage() {
   const [project, setProject] = useState<any>(null);
   const [task, setTask] = useState<any>(null);
   const [inputs, setInputs] = useState<Record<string, any>>({});
-  const [output, setOutput] = useState<TaskOutput | null>(null);
+  const [output, setOutput] = useState<any>(null);
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
@@ -1046,7 +670,6 @@ export default function PlaygroundPage() {
       }
 
       const data = await res.json();
-      console.log("projectt dataaaaaaaa",data)
       setProject(data);
 
       if (data.metadata?.tasks?.length > 0) {

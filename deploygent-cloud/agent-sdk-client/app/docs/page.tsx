@@ -15,6 +15,28 @@ import {
   Copy,
   Check,
   Terminal,
+  FileText,
+  AlignLeft,
+  Hash,
+  ToggleLeft,
+  Lock,
+  Mail,
+  Link2,
+  Calendar,
+  Clock,
+  CalendarClock,
+  Upload,
+  ImageIcon,
+  Music,
+  Video,
+  List,
+  ListChecks,
+  Braces,
+  FileType,
+  FileSpreadsheet,
+  FileArchive,
+  File as FileIcon,
+  Table as TableIcon,
 } from "lucide-react";
 
 export default function DocsPage() {
@@ -25,6 +47,186 @@ export default function DocsPage() {
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
+
+  const inputComponents = [
+    {
+      name: "TextInput",
+      icon: FileText,
+      desc: "Single-line free text entry.",
+      props: "label · placeholder · required · default",
+    },
+    {
+      name: "TextAreaInput",
+      icon: AlignLeft,
+      desc: "Multi-line free text entry.",
+      props: "rows (default 5)",
+    },
+    {
+      name: "NumberInput",
+      icon: Hash,
+      desc: "Numeric entry with bounds.",
+      props: "min · max · step (default 1)",
+    },
+    {
+      name: "BooleanInput",
+      icon: ToggleLeft,
+      desc: "On/off toggle switch.",
+      props: "default (true / false)",
+    },
+    {
+      name: "PasswordInput",
+      icon: Lock,
+      desc: "Masked single-line text entry.",
+      props: "label · placeholder · required",
+    },
+    {
+      name: "EmailInput",
+      icon: Mail,
+      desc: "Text entry validated as an email address.",
+      props: "label · placeholder · required",
+    },
+    {
+      name: "URLInput",
+      icon: Link2,
+      desc: "Text entry validated as a URL.",
+      props: "label · placeholder · required",
+    },
+    {
+      name: "DateInput",
+      icon: Calendar,
+      desc: "Calendar date picker.",
+      props: "min · max",
+    },
+    {
+      name: "TimeInput",
+      icon: Clock,
+      desc: "Time-of-day picker.",
+      props: "label · required · default",
+    },
+    {
+      name: "DateTimeInput",
+      icon: CalendarClock,
+      desc: "Combined date & time picker.",
+      props: "label · required · default",
+    },
+    {
+      name: "FileInput",
+      icon: Upload,
+      desc: "Generic file upload.",
+      props: "accept · multiple · max_size",
+    },
+    {
+      name: "ImageInput",
+      icon: ImageIcon,
+      desc: "File upload restricted to image/*.",
+      props: "extends FileInput",
+    },
+    {
+      name: "AudioInput",
+      icon: Music,
+      desc: "File upload restricted to audio/*.",
+      props: "extends FileInput",
+    },
+    {
+      name: "VideoInput",
+      icon: Video,
+      desc: "File upload restricted to video/*.",
+      props: "extends FileInput",
+    },
+    {
+      name: "SelectInput",
+      icon: List,
+      desc: "Single-choice dropdown.",
+      props: "options[] · searchable",
+    },
+    {
+      name: "MultiSelectInput",
+      icon: ListChecks,
+      desc: "Multi-choice selector.",
+      props: "options[] · searchable",
+    },
+    {
+      name: "JSONInput",
+      icon: Braces,
+      desc: "Structured JSON entry with live validation.",
+      props: "schema (optional)",
+    },
+  ];
+
+  const outputComponents = [
+    {
+      name: "TextOutput",
+      icon: FileText,
+      desc: "Renders a plain text response.",
+      props: "title · description",
+    },
+    {
+      name: "MarkdownOutput",
+      icon: AlignLeft,
+      desc: "Renders formatted markdown content.",
+      props: "title · description",
+    },
+    {
+      name: "JSONOutput",
+      icon: Braces,
+      desc: "Renders a structured JSON payload.",
+      props: "pretty · collapsible",
+    },
+    {
+      name: "HTMLOutput",
+      icon: Code2,
+      desc: "Renders raw HTML markup.",
+      props: "title · description",
+    },
+    {
+      name: "TableOutput",
+      icon: TableIcon,
+      desc: "Renders tabular data as a data grid.",
+      props: "sortable · searchable · pagination",
+    },
+    {
+      name: "ImageOutput",
+      icon: ImageIcon,
+      desc: "Renders an inline, previewable image.",
+      props: "format · downloadable (default true)",
+    },
+    {
+      name: "AudioOutput",
+      icon: Music,
+      desc: "Renders an inline audio player.",
+      props: "downloadable (default true)",
+    },
+    {
+      name: "VideoOutput",
+      icon: Video,
+      desc: "Renders an inline video player.",
+      props: "downloadable (default true)",
+    },
+    {
+      name: "FileOutput",
+      icon: FileIcon,
+      desc: "Generic downloadable file.",
+      props: "extension · downloadable (default true)",
+    },
+    {
+      name: "PDFOutput",
+      icon: FileType,
+      desc: "Downloadable PDF document.",
+      props: "downloadable (default true)",
+    },
+    {
+      name: "CSVOutput",
+      icon: FileSpreadsheet,
+      desc: "Downloadable CSV file.",
+      props: "downloadable (default true)",
+    },
+    {
+      name: "ZIPOutput",
+      icon: FileArchive,
+      desc: "Downloadable ZIP archive.",
+      props: "downloadable (default true)",
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-white text-zinc-950 font-sans selection:bg-zinc-950 selection:text-white antialiased">
@@ -249,26 +451,39 @@ def summarize(text: str) -> str:
 
           {/* Inputs */}
           <section id="inputs" className="scroll-mt-24">
-            <h2 className="text-2xl font-bold tracking-tight uppercase text-zinc-950 mb-4">
-              Input Components
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {[
-                "TextInput",
-                "NumberInput",
-                "BooleanInput",
-                "SelectInput",
-                "FileInput",
-                "ImageInput",
-                "AudioInput",
-                "VideoInput",
-                "JSONInput",
-              ].map((item) => (
+            <div className="flex items-center gap-2.5 text-zinc-950 mb-2">
+              <List size={22} />
+              <h2 className="text-2xl font-bold tracking-tight uppercase">
+                Input Components
+              </h2>
+            </div>
+            <p className="text-sm leading-relaxed text-zinc-600 font-normal mb-6">
+              Declare task parameters using any of the following input types. Every
+              input accepts <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">label</code>,{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">placeholder</code>,{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">description</code>,{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">required</code>,{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">default</code>,{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">disabled</code>, and{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">hidden</code>, plus the
+              type-specific properties listed below.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {inputComponents.map((item) => (
                 <div
-                  key={item}
-                  className="rounded border border-zinc-200 bg-zinc-50 p-3 font-mono text-xs font-semibold text-zinc-950"
+                  key={item.name}
+                  className="group rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 transition hover:border-zinc-950 hover:bg-white"
                 >
-                  {item}
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <item.icon size={16} className="text-zinc-500 group-hover:text-zinc-950" />
+                    <span className="font-mono text-xs font-bold text-zinc-950">
+                      {item.name}
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-600 leading-relaxed">{item.desc}</p>
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+                    {item.props}
+                  </p>
                 </div>
               ))}
             </div>
@@ -276,22 +491,37 @@ def summarize(text: str) -> str:
 
           {/* Outputs */}
           <section id="outputs" className="scroll-mt-24">
-            <h2 className="text-2xl font-bold tracking-tight uppercase text-zinc-950 mb-4">
-              Output Renderers
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {[
-                "TextOutput",
-                "MarkdownOutput",
-                "JSONOutput",
-                "ImageOutput",
-                "FileOutput",
-              ].map((item) => (
+            <div className="flex items-center gap-2.5 text-zinc-950 mb-2">
+              <Code2 size={22} />
+              <h2 className="text-2xl font-bold tracking-tight uppercase">
+                Output Renderers
+              </h2>
+            </div>
+            <p className="text-sm leading-relaxed text-zinc-600 font-normal mb-6">
+              Return any of the following output types from a task to control how the
+              result is rendered in the playground. Every output accepts{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">title</code>,{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">description</code>,{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">downloadable</code>, and{" "}
+              <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs">preview</code>, plus the
+              type-specific properties listed below.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {outputComponents.map((item) => (
                 <div
-                  key={item}
-                  className="rounded border border-zinc-200 bg-zinc-50 p-3 font-mono text-xs font-semibold text-zinc-950"
+                  key={item.name}
+                  className="group rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 transition hover:border-zinc-950 hover:bg-white"
                 >
-                  {item}
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <item.icon size={16} className="text-zinc-500 group-hover:text-zinc-950" />
+                    <span className="font-mono text-xs font-bold text-zinc-950">
+                      {item.name}
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-600 leading-relaxed">{item.desc}</p>
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400">
+                    {item.props}
+                  </p>
                 </div>
               ))}
             </div>

@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -16,13 +16,40 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { GithubIcon } from "@/components/ui/GithubIcon";
-
+import { Turnstile } from "@marsidev/react-turnstile";
 export default function Home() {
   const { data: session, status } = useSession();
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [verified, setVerified] = useState(false);
+  async function handleGitHubSignIn() {
+    if (!verified || !turnstileToken) {
+      alert("Please verify you're human.");
+      return;
+    }
 
+    const res = await fetch("/api/turnstile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: turnstileToken,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (!result.success) {
+      alert("Human verification failed.");
+      return;
+    }
+
+    signIn("github");
+  }
   return (
     <main className="min-h-screen bg-[#faf8f5] text-zinc-950 font-sans selection:bg-zinc-950 selection:text-white overflow-x-hidden antialiased">
       {/* Google Cursive Font Import */}
+
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap");
         .font-cursive {
@@ -93,6 +120,7 @@ export default function Home() {
                       {session.user.name?.charAt(0) || "U"}
                     </div>
                   )}
+
                   <span className="hidden font-mono text-xs font-bold text-zinc-800 sm:inline">
                     {session.user.name}
                   </span>
@@ -101,20 +129,34 @@ export default function Home() {
                 <button
                   onClick={() => signOut()}
                   className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-bold text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 cursor-pointer"
-                  title="Sign out"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Sign Out</span>
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => signIn("github")}
-                className="flex items-center gap-2 rounded-lg bg-zinc-950 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-zinc-800 cursor-pointer shadow-sm"
-              >
-                <GithubIcon className="h-3.5 w-3.5 fill-current" />
-                <span>Sign In</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <Turnstile
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(token) => {
+                    setTurnstileToken(token);
+                    setVerified(true);
+                  }}
+                  onExpire={() => {
+                    setVerified(false);
+                    setTurnstileToken("");
+                  }}
+                />
+
+                <button
+                  onClick={handleGitHubSignIn}
+                  className="flex items-center gap-2 rounded-lg bg-zinc-950 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-zinc-800 cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!verified}
+                >
+                  <GithubIcon className="h-3.5 w-3.5 fill-current" />
+                  <span>Sign In</span>
+                </button>
+              </div>
             )}
           </div>
         </nav>
