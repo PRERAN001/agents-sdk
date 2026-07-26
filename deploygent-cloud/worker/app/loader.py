@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def load_agent(path):
-
+    print("load agent ",path)
     path = Path(path)
 
     if not path.exists():

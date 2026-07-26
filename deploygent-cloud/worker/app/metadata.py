@@ -9,8 +9,10 @@ def extract_metadata(repo_dir):
     agent = load_agent(
         repo_dir / "agent.py"
     )
+    print("recived the agent from the loader",agent)
 
     metadata = agent.describe()
+    print("agent meta data ",metadata)
 
     return metadata
 
@@ -30,3 +32,4 @@ def save_metadata_file(
             f,
             indent=4
         )
+    print("after saving the metadata the file",f)
