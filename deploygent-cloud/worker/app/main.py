@@ -76,6 +76,7 @@ def get_projects():
 def delete_project(project_id: str):
 
     project = db.projects.find_one({"_id": project_id})
+    print("delte the projectttt",project)
 
     if not project:
         raise HTTPException(404, "Project not found")
