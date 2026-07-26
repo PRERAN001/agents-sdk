@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from .deploy import deploy_project
 from fastapi import HTTPException
-from .database import deployments
+from .database import deployments,db
+
 from bson import ObjectId
 
 import shutil
@@ -72,10 +73,10 @@ def get_projects():
 @app.delete("/projects/{project_id}")
 def delete_project(project_id: str):
     print("printing alll the projects")
-    for p in deployments.projects.find():
+    for p in db.projects.find():
         print(p)
 
-    project = deployments.projects.find_one({"_id":project_id})
+    project = db.projects.find_one({"_id":project_id})
     print("Found ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh:", project)
 
     if not project:
@@ -93,7 +94,7 @@ def delete_project(project_id: str):
 
     shutil.rmtree(deployment_path, ignore_errors=True)
 
-    deployments.projects.delete_one({"_id": project_id})
+    db.projects.delete_one({"_id": project_id})
 
     return {
         "success": True
