@@ -72,7 +72,7 @@ def get_projects():
 @app.delete("/projects/{project_id}")
 def delete_project(project_id: str):
 
-    project = deployments.projects.find_one({"_id": ObjectId(project_id)})
+    project = deployments.projects.find_one({"_id":project_id})
 
     if not project:
         raise HTTPException(404, "Project not found")
@@ -89,7 +89,7 @@ def delete_project(project_id: str):
 
     shutil.rmtree(deployment_path, ignore_errors=True)
 
-    deployments.projects.delete_one({"_id": ObjectId(project_id)})
+    deployments.projects.delete_one({"_id": project_id})
 
     return {
         "success": True
