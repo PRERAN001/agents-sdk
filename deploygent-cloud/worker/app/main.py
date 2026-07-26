@@ -71,8 +71,12 @@ def get_projects():
 
 @app.delete("/projects/{project_id}")
 def delete_project(project_id: str):
+    print("printing alll the projects")
+    for p in deployments.projects.find():
+        print(p)
 
     project = deployments.projects.find_one({"_id":project_id})
+    print("Found ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh:", project)
 
     if not project:
         raise HTTPException(404, "Project not found")
