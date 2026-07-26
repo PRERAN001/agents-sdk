@@ -164,6 +164,3 @@ deploygent doctor
 - Secrets manager
 - SDKs for additional languages
 
-## License
-
-MIT License
