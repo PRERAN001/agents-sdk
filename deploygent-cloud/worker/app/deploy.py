@@ -111,6 +111,8 @@ def deploy_project(project_id: str, repo_url: str):
         )
 
         port = get_free_port()
+        print("the allocated port",port)
+        
 
         # ----------------------------
         # Start Runtime
