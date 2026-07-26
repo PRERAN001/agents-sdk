@@ -103,7 +103,7 @@ export default function Home() {
               Docs
             </Link>
             <Link
-              href="https://github.com"
+              href="https://github.com/PRERAN001/agents-sdk"
               target="_blank"
               rel="noopener noreferrer"
               className="transition hover:text-zinc-950"
