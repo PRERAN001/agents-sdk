@@ -16,7 +16,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://agents-sdk-seven.vercel.app"
+        "https://agents-sdk-seven.vercel.app",
         "https://deploygent.preran-s.me"
             # Next.js
     ],
