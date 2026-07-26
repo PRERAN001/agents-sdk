@@ -109,7 +109,7 @@ def deploy_project(project_id: str, repo_url: str):
             deployment_id,
             "allocating_port",
         )
-
+        print("should i enter the ports section")
         port = get_free_port()
         print("the allocated port",port)
         
