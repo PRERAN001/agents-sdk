@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: deploygent
-Version: 0.1.5
+Version: 0.1.7
 Summary: Deploy AI agents effortlessly.
 Requires-Python: >=3.10
 Requires-Dist: fastapi

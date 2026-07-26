@@ -56,7 +56,7 @@ def get_deployment(project_id: str):
         "runtime": {
             "port": deployment["port"],
             "pid": deployment["pid"],
-            "url": f"http://16.16.110.104:{deployment['port']}"
+            "url": f"http://13.63.176.50:{deployment['port']}"
         },
         "metadata": deployment["metadata"]
     }

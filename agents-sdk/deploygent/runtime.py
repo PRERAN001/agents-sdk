@@ -52,6 +52,7 @@ def start_runtime(agent, host="0.0.0.0", port=8000):
     @app.post("/run")
     def run(request: RunRequest):
         try:
+            print("agent inputs",request.inputs)
             result = agent.run(
                 request.task,
                 request.inputs
