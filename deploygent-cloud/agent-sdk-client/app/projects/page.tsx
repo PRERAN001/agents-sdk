@@ -205,13 +205,7 @@ export default function ProjectsPage() {
               </div>
 
               <div className="mt-6 sm:mt-8 flex items-center justify-between border-t border-zinc-100 pt-4">
-                <button
-                  onClick={(e) => handleDelete(e, project.project_id)}
-                  className="flex items-center gap-1.5 rounded-md border border-red-200 px-2.5 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-red-600 transition hover:bg-red-50"
-                >
-                  <Trash2 size={13} />
-                  Delete
-                </button>
+                
 
                 <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-zinc-950">
                   <span>View Agent</span>
