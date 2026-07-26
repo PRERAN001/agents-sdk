@@ -73,12 +73,12 @@ def get_projects():
 @app.delete("/projects/{project_id}")
 def delete_project(project_id: str):
 
-    project = deployments.projects.find_one({"_id": project_id})
+    project = db.projects.find_one({"_id": project_id})
 
     if not project:
         raise HTTPException(404, "Project not found")
 
-    deployments.projects.delete_one({"_id": project_id})
+    db.projects.delete_one({"_id": project_id})
 
     return {"success": True}
 @app.get("/dashboard")
