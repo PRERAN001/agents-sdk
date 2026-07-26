@@ -68,7 +68,7 @@ export default function ProjectsPage() {
       setProjects(data);
     } catch (error) {
       console.error("Failed to fetch projects:", error);
-    } font-mono {
+    } finally {
       setLoading(false);
     }
   }
