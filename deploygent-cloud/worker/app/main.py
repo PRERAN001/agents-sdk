@@ -72,33 +72,15 @@ def get_projects():
 
 @app.delete("/projects/{project_id}")
 def delete_project(project_id: str):
-    print("printing alll the projects")
-    for p in db.projects.find():
-        print(p)
 
-    project = db.projects.find_one({"_id":project_id})
-    print("Found ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh:", project)
+    project = deployments.projects.find_one({"_id": project_id})
 
     if not project:
         raise HTTPException(404, "Project not found")
 
-    pid = project.get("pid")
+    deployments.projects.delete_one({"_id": project_id})
 
-    if pid:
-        try:
-            psutil.Process(pid).kill()
-        except Exception:
-            pass
-
-    deployment_path = project["path"]
-
-    shutil.rmtree(deployment_path, ignore_errors=True)
-
-    db.projects.delete_one({"_id": project_id})
-
-    return {
-        "success": True
-    }
+    return {"success": True}
 @app.get("/dashboard")
 def dashboard():
 
