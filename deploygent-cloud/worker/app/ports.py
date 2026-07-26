@@ -5,6 +5,7 @@ END_PORT = 9999
 
 
 def get_free_port():
+    print("searching for the free ports   :)))))))))))")
     for port in range(START_PORT, END_PORT + 1):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
