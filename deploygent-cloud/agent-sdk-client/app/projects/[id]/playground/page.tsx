@@ -681,62 +681,75 @@ export default function PlaygroundPage() {
       setLoading(false);
     }
   }
+async function execute() {
+  if (!task || !project?.id) return;
 
-  async function execute() {
-    if (!task || !project?.runtime?.url) return;
+  setRunning(true);
+  setOutput(null);
 
-    setRunning(true);
-    setOutput(null);
+  try {
+    const formHasFiles = Object.values(inputs).some(
+      (v) => v instanceof File || (Array.isArray(v) && v[0] instanceof File)
+    );
 
-    try {
-      const formHasFiles = Object.values(inputs).some(
-        (v) => v instanceof File || (Array.isArray(v) && v[0] instanceof File)
-      );
+    let res: Response;
 
-      let res: Response;
+    if (formHasFiles) {
+      const form = new FormData();
 
-      if (formHasFiles) {
-        const form = new FormData();
-        form.append("task", task.name);
-        Object.entries(inputs).forEach(([key, val]) => {
-          if (val instanceof File) {
-            form.append(key, val);
-          } else if (Array.isArray(val) && val[0] instanceof File) {
-            val.forEach((f: File) => form.append(key, f));
-          } else if (val !== undefined) {
-            form.append(
-              key,
-              typeof val === "object" ? JSON.stringify(val) : String(val)
-            );
-          }
-        });
+      form.append("task", task.name);
 
-        res = await fetch(`${project.runtime.url}/run`, {
+      Object.entries(inputs).forEach(([key, val]) => {
+        if (val instanceof File) {
+          form.append(key, val);
+        } else if (Array.isArray(val) && val[0] instanceof File) {
+          val.forEach((f: File) => form.append(key, f));
+        } else if (val !== undefined) {
+          form.append(
+            key,
+            typeof val === "object" ? JSON.stringify(val) : String(val)
+          );
+        }
+      });
+
+      res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/deployment/${project.id}/invoke`,
+        {
           method: "POST",
           body: form,
-        });
-      } else {
-        res = await fetch(`${project.runtime.url}/run`, {
+        }
+      );
+    } else {
+      res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/deployment/${project.id}/invoke`,
+        {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             task: task.name,
             inputs,
           }),
-        });
-      }
-
-      const data = await res.json();
-      setOutput(data);
-    } catch (error: any) {
-      setOutput({
-        type: "error",
-        message: error.message || "Execution request failed.",
-      });
-    } finally {
-      setRunning(false);
+        }
+      );
     }
+
+    if (!res.ok) {
+      throw new Error(await res.text());
+    }
+
+    const data = await res.json();
+    setOutput(data);
+  } catch (error: any) {
+    setOutput({
+      type: "error",
+      message: error.message || "Execution request failed.",
+    });
+  } finally {
+    setRunning(false);
   }
+}
 
   if (loading)
     return (

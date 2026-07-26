@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .deploy import deploy_project
 from fastapi import HTTPException
 from .database import deployments,db
-
+from fastapi import Body
 from bson import ObjectId
-
+import requests
 import shutil
 import psutil
 app = FastAPI(
@@ -114,3 +114,35 @@ def get_deployments():
         doc["_id"] = str(doc["_id"])
 
     return docs
+
+
+
+@app.post("/deployment/{project_id}/invoke")
+def invoke_agent(project_id: str, payload: dict = Body(...)):
+
+    deployment = deployments.find_one({"project_id": project_id})
+
+    if not deployment:
+        raise HTTPException(status_code=404, detail="Deployment not found")
+
+    if deployment["status"] != "running":
+        raise HTTPException(status_code=400, detail="Deployment is not running")
+
+    runtime_url = f"http://127.0.0.1:{deployment['port']}"
+
+    try:
+        response = requests.post(
+            f"{runtime_url}/run",
+            json=payload,
+            timeout=300
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to communicate with runtime: {str(e)}"
+        )
