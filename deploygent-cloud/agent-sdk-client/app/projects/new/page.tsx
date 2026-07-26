@@ -48,13 +48,15 @@ export default function NewProjectPage() {
       }
 
       const data = await res.json();
-      console.log("project page data",data)
+      console.log("project page data", data);
       setLogs((p) => [...p, "Repository accepted"]);
       setLogs((p) => [...p, "Deployment queued"]);
 
       router.push(`/projects/${data.project_id}`);
-    } catch (err: any) {
-      setLogs((p) => [...p, err.message || "An error occurred"]);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
+      setLogs((p) => [...p, errorMessage]);
     } finally {
       setLoading(false);
     }
@@ -73,39 +75,39 @@ export default function NewProjectPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-8 py-4 sm:py-6">
           <div>
             <Link
               href="/projects"
-              className="mb-2 inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-zinc-500 transition hover:text-zinc-950"
+              className="mb-1.5 sm:mb-2 inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-zinc-500 transition hover:text-zinc-950"
             >
               <ArrowLeft size={14} />
               Back
             </Link>
 
-            <h1 className="text-3xl font-black tracking-tight text-zinc-950 uppercase">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950 uppercase">
               Deploy New Agent
             </h1>
 
-            <p className="mt-1 text-sm text-zinc-500 font-normal">
+            <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-zinc-500 font-normal">
               Paste a GitHub repository URL and DeployGent will handle the rest.
             </p>
           </div>
 
-          <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-950 shadow-sm">
+          <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-950 shadow-sm">
             <Rocket size={22} />
           </div>
         </div>
       </header>
 
       {/* Main Section */}
-      <section className="mx-auto grid max-w-6xl gap-8 px-8 py-10 lg:grid-cols-[1.2fr_0.8fr]">
+      <section className="mx-auto grid max-w-6xl gap-6 sm:gap-8 px-4 sm:px-8 py-6 sm:py-10 lg:grid-cols-[1.2fr_0.8fr]">
         {/* Left Column: Input Form */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-8 shadow-sm">
             <div className="flex items-center gap-2.5">
-              <GithubIcon className="w-5 h-5 text-zinc-950" />
-              <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
+              <GithubIcon className="w-5 h-5 text-zinc-950 shrink-0" />
+              <h2 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
                 Repository
               </h2>
             </div>
@@ -114,20 +116,20 @@ export default function NewProjectPage() {
               Public GitHub repository containing your DeployGent agent.
             </p>
 
-            <div className="mt-6">
+            <div className="mt-5 sm:mt-6">
               <input
                 type="url"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
                 placeholder="https://github.com/username/repository"
-                className="h-12 w-full rounded-lg border border-zinc-300 bg-zinc-50/50 px-4 font-mono text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white"
+                className="h-12 w-full rounded-lg border border-zinc-300 bg-zinc-50/50 px-4 font-mono text-base sm:text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white"
               />
             </div>
 
             <button
               disabled={loading || !repoUrl.trim()}
               onClick={deploy}
-              className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+              className="mt-5 sm:mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -143,38 +145,38 @@ export default function NewProjectPage() {
             </button>
           </div>
 
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-6">
+          <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-5 sm:p-6">
             <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-950">
               What happens after clicking Deploy?
             </h3>
 
-            <div className="mt-4 grid grid-cols-2 gap-3 font-mono text-xs text-zinc-600">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 font-mono text-xs text-zinc-600">
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950 shrink-0" />
                 Clone repository
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950 shrink-0" />
                 Create virtual environment
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950 shrink-0" />
                 Install dependencies
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950 shrink-0" />
                 Extract metadata
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950 shrink-0" />
                 Start runtime
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950 shrink-0" />
                 Allocate port
               </div>
-              <div className="flex items-center gap-2 col-span-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950" />
+              <div className="flex items-center gap-2 sm:col-span-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-950 shrink-0" />
                 Generate playground
               </div>
             </div>
@@ -183,32 +185,32 @@ export default function NewProjectPage() {
 
         {/* Right Column: Deployment Log & Activity */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-sm">
+            <h2 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
               Deployment Activity
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
               Live deployment events.
             </p>
 
-            <div className="mt-6 space-y-3 min-h-[160px]">
+            <div className="mt-5 sm:mt-6 space-y-2.5 sm:space-y-3 min-h-[140px] sm:min-h-[160px]">
               {logs.length === 0 ? (
-                <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zinc-200 font-mono text-xs uppercase tracking-widest text-zinc-400">
+                <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-zinc-200 font-mono text-xs uppercase tracking-widest text-zinc-400 text-center px-4">
                   Waiting for deployment...
                 </div>
               ) : (
                 logs.map((log, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 font-mono text-xs text-zinc-800"
+                    className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 sm:p-3.5 font-mono text-xs text-zinc-800 break-all"
                   >
                     {loading && index === logs.length - 1 ? (
                       <CircleDashed
-                        className="animate-spin text-zinc-950"
+                        className="animate-spin text-zinc-950 shrink-0"
                         size={16}
                       />
                     ) : (
-                      <CheckCircle2 className="text-zinc-950" size={16} />
+                      <CheckCircle2 className="text-zinc-950 shrink-0" size={16} />
                     )}
                     <span>{log}</span>
                   </div>
@@ -217,7 +219,7 @@ export default function NewProjectPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <div className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-sm">
             <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-950">
               Deployment Engine
             </h3>

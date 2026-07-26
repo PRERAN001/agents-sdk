@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -35,7 +35,7 @@ import {
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
 /* ------------------------------------------------------------------ */
-/* Types                                                               */
+/* Types                                                              */
 /* ------------------------------------------------------------------ */
 
 type InputType =
@@ -64,7 +64,7 @@ interface TaskInput {
   placeholder?: string;
   description?: string;
   required?: boolean;
-  default?: any;
+  default?: unknown;
   disabled?: boolean;
   hidden?: boolean;
   // type-specific
@@ -77,11 +77,26 @@ interface TaskInput {
   max_size?: number;
   options?: string[];
   searchable?: boolean;
-  schema?: any;
+  schema?: unknown;
+}
+
+interface Task {
+  name: string;
+  description?: string;
+  inputs?: TaskInput[];
+}
+
+interface ProjectData {
+  id?: string;
+  project_id?: string;
+  name?: string;
+  metadata?: {
+    tasks?: Task[];
+  };
 }
 
 /* ------------------------------------------------------------------ */
-/* Helpers                                                             */
+/* Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
 function labelFor(input: TaskInput) {
@@ -91,7 +106,6 @@ function labelFor(input: TaskInput) {
 function iconForInput(type: InputType) {
   switch (type) {
     case "text":
-      return FileText;
     case "textarea":
       return FileText;
     case "number":
@@ -127,7 +141,7 @@ function iconForInput(type: InputType) {
 }
 
 function baseInputClass(disabled?: boolean) {
-  return `h-12 w-full rounded-lg border border-zinc-300 bg-zinc-50/50 pl-11 pr-4 font-mono text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white ${
+  return `h-12 w-full rounded-lg border border-zinc-300 bg-zinc-50/50 pl-11 pr-4 font-mono text-base sm:text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white ${
     disabled ? "cursor-not-allowed opacity-50" : ""
   }`;
 }
@@ -197,11 +211,11 @@ function TagInput({
             }
           }}
           onBlur={commit}
-          className="min-w-[120px] flex-1 bg-transparent font-mono text-sm text-zinc-950 placeholder-zinc-400 outline-none"
+          className="min-w-[120px] flex-1 bg-transparent font-mono text-base sm:text-sm text-zinc-950 placeholder-zinc-400 outline-none"
         />
       </div>
       <p className="mt-1.5 flex items-center gap-1 font-mono text-[11px] text-amber-600">
-        <AlertCircle size={12} />
+        <AlertCircle size={12} className="shrink-0" />
         No options provided for this field — press Enter to add tags.
       </p>
     </div>
@@ -218,8 +232,8 @@ function InputField({
   onChange,
 }: {
   input: TaskInput;
-  value: any;
-  onChange: (val: any) => void;
+  value: unknown;
+  onChange: (val: unknown) => void;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -241,7 +255,7 @@ function InputField({
 
   return (
     <div>
-      <div className="mb-2 flex items-baseline justify-between">
+      <div className="mb-1.5 sm:mb-2 flex items-baseline justify-between">
         <label className="block font-mono text-xs font-bold uppercase tracking-wider text-zinc-600">
           {labelFor(input)}
           {input.required && <span className="ml-1 text-rose-500">*</span>}
@@ -260,7 +274,7 @@ function InputField({
             type="text"
             disabled={disabled}
             placeholder={input.placeholder}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as string) ?? ""}
             className={baseInputClass(disabled)}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -273,8 +287,8 @@ function InputField({
           rows={input.rows || 5}
           disabled={disabled}
           placeholder={input.placeholder}
-          defaultValue={input.default ?? ""}
-          className={`w-full rounded-lg border border-zinc-300 bg-zinc-50/50 p-4 font-mono text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white ${
+          defaultValue={(input.default as string) ?? ""}
+          className={`w-full rounded-lg border border-zinc-300 bg-zinc-50/50 p-3.5 sm:p-4 font-mono text-base sm:text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white ${
             disabled ? "cursor-not-allowed opacity-50" : ""
           }`}
           onChange={(e) => onChange(e.target.value)}
@@ -289,7 +303,7 @@ function InputField({
             type="number"
             disabled={disabled}
             placeholder={input.placeholder}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as number) ?? ""}
             min={input.min}
             max={input.max}
             step={input.step ?? 1}
@@ -306,7 +320,7 @@ function InputField({
             disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
         >
-          <ToggleLeft size={20} className="text-zinc-600" />
+          <ToggleLeft size={20} className="text-zinc-600 shrink-0" />
           <span className="flex-1">Toggle Option</span>
           <input
             type="checkbox"
@@ -326,7 +340,7 @@ function InputField({
             type="password"
             disabled={disabled}
             placeholder={input.placeholder}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as string) ?? ""}
             className={baseInputClass(disabled)}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -341,7 +355,7 @@ function InputField({
             type="email"
             disabled={disabled}
             placeholder={input.placeholder}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as string) ?? ""}
             className={baseInputClass(disabled)}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -356,7 +370,7 @@ function InputField({
             type="url"
             disabled={disabled}
             placeholder={input.placeholder}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as string) ?? ""}
             className={baseInputClass(disabled)}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -370,7 +384,7 @@ function InputField({
           <input
             type="date"
             disabled={disabled}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as string) ?? ""}
             min={input.min as string}
             max={input.max as string}
             className={baseInputClass(disabled)}
@@ -386,7 +400,7 @@ function InputField({
           <input
             type="time"
             disabled={disabled}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as string) ?? ""}
             className={baseInputClass(disabled)}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -400,7 +414,7 @@ function InputField({
           <input
             type="datetime-local"
             disabled={disabled}
-            defaultValue={input.default ?? ""}
+            defaultValue={(input.default as string) ?? ""}
             className={baseInputClass(disabled)}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -413,24 +427,24 @@ function InputField({
         input.type === "audio" ||
         input.type === "video") && (
         <label
-          className={`flex h-36 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-300 bg-zinc-50/50 transition ${
+          className={`flex h-32 sm:h-36 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-300 bg-zinc-50/50 p-4 transition ${
             disabled
               ? "cursor-not-allowed opacity-50"
               : "cursor-pointer hover:border-zinc-950 hover:bg-zinc-50"
           }`}
         >
-          <Icon size={32} className="text-zinc-400" />
-          <span className="mt-2 font-mono text-xs font-bold uppercase tracking-wider text-zinc-600">
+          <Icon size={28} className="text-zinc-400" />
+          <span className="mt-2 text-center font-mono text-xs font-bold uppercase tracking-wider text-zinc-600">
             Upload {input.type}
             {input.multiple ? "s" : ""}
           </span>
-          {value && (
-            <span className="mt-1 max-w-[80%] truncate font-mono text-[11px] text-zinc-500">
+          {value ? (
+            <span className="mt-1 max-w-[90%] truncate font-mono text-[11px] text-zinc-500 text-center">
               {input.multiple
-                ? `${(value as FileList).length ?? value.length} file(s) selected`
-                : value?.name}
+                ? `${(value as FileList).length ?? (value as File[]).length} file(s) selected`
+                : (value as File)?.name}
             </span>
-          )}
+          ) : null}
           <input
             type="file"
             className="hidden"
@@ -471,7 +485,7 @@ function InputField({
                 <List className="absolute left-3.5 top-3.5 text-zinc-400" size={18} />
                 <select
                   disabled={disabled}
-                  defaultValue={input.default ?? ""}
+                  defaultValue={(input.default as string) ?? ""}
                   className={`${baseInputClass(disabled)} cursor-pointer`}
                   onChange={(e) => onChange(e.target.value)}
                 >
@@ -489,8 +503,6 @@ function InputField({
               </div>
             </div>
           ) : (
-            // Fallback: no options provided by the backend — behave like a
-            // plain text field instead of rendering a dead-end dropdown.
             <div>
               <div className="relative">
                 <List className="absolute left-3.5 top-3.5 text-zinc-400" size={18} />
@@ -498,13 +510,13 @@ function InputField({
                   type="text"
                   disabled={disabled}
                   placeholder={input.placeholder || "Type a value..."}
-                  defaultValue={input.default ?? ""}
+                  defaultValue={(input.default as string) ?? ""}
                   className={baseInputClass(disabled)}
                   onChange={(e) => onChange(e.target.value)}
                 />
               </div>
               <p className="mt-1.5 flex items-center gap-1 font-mono text-[11px] text-amber-600">
-                <AlertCircle size={12} />
+                <AlertCircle size={12} className="shrink-0" />
                 No options provided for this field — using free text input.
               </p>
             </div>
@@ -532,7 +544,7 @@ function InputField({
               <div className="flex max-h-48 flex-col gap-1 overflow-auto">
                 {(input.searchable ? filteredOptions : input.options).map(
                   (option) => {
-                    const selected: string[] = Array.isArray(value) ? value : [];
+                    const selected: string[] = Array.isArray(value) ? (value as string[]) : [];
                     const checked = selected.includes(option);
                     return (
                       <button
@@ -548,11 +560,11 @@ function InputField({
                         className="flex items-center gap-2 rounded-md px-2 py-2 text-left font-mono text-xs text-zinc-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {checked ? (
-                          <CheckSquare size={16} className="text-zinc-950" />
+                          <CheckSquare size={16} className="text-zinc-950 shrink-0" />
                         ) : (
-                          <Square size={16} className="text-zinc-400" />
+                          <Square size={16} className="text-zinc-400 shrink-0" />
                         )}
-                        {option}
+                        <span className="truncate">{option}</span>
                       </button>
                     );
                   }
@@ -560,10 +572,8 @@ function InputField({
               </div>
             </div>
           ) : (
-            // Fallback: no options provided — free-form tag input.
-            // Type a value and press Enter or "," to add it as a chip.
             <TagInput
-              value={Array.isArray(value) ? value : []}
+              value={Array.isArray(value) ? (value as string[]) : []}
               onChange={onChange}
               disabled={disabled}
               placeholder={input.placeholder || "Type a value and press Enter..."}
@@ -582,7 +592,7 @@ function InputField({
             defaultValue={jsonText}
             className={`w-full rounded-lg border ${
               jsonError ? "border-rose-400" : "border-zinc-300"
-            } bg-zinc-50/50 p-4 font-mono text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white ${
+            } bg-zinc-50/50 p-3.5 sm:p-4 font-mono text-base sm:text-sm text-zinc-950 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:bg-white ${
               disabled ? "cursor-not-allowed opacity-50" : ""
             }`}
             onChange={(e) => {
@@ -599,7 +609,7 @@ function InputField({
           />
           {jsonError && (
             <p className="mt-1.5 flex items-center gap-1 font-mono text-[11px] font-semibold text-rose-600">
-              <AlertCircle size={12} />
+              <AlertCircle size={12} className="shrink-0" />
               {jsonError}
             </p>
           )}
@@ -610,10 +620,10 @@ function InputField({
 }
 
 /* ------------------------------------------------------------------ */
-/* Output Renderer Component                                           */
+/* Output Renderer Component                                          */
 /* ------------------------------------------------------------------ */
 
-function OutputPanel({ output }: { output: any }) {
+function OutputPanel({ output }: { output: unknown }) {
   const [expanded, setExpanded] = useState(true);
 
   const isString = typeof output === "string";
@@ -623,7 +633,7 @@ function OutputPanel({ output }: { output: any }) {
     <div className="rounded-lg border border-zinc-950 bg-zinc-950 shadow-inner overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-200"
+        className="flex w-full items-center justify-between px-4 sm:px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-200"
       >
         <span className="flex items-center gap-2">
           <Code2 size={14} />
@@ -632,7 +642,7 @@ function OutputPanel({ output }: { output: any }) {
         {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
       {expanded && (
-        <pre className="max-h-[32rem] overflow-auto p-6 pt-0 font-mono text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap break-words">
+        <pre className="max-h-[28rem] sm:max-h-[32rem] overflow-auto p-4 sm:p-6 pt-0 font-mono text-[11px] sm:text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap break-words">
           {pretty}
         </pre>
       )}
@@ -641,26 +651,22 @@ function OutputPanel({ output }: { output: any }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Main Page                                                           */
+/* Main Page                                                          */
 /* ------------------------------------------------------------------ */
 
 export default function PlaygroundPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
 
   const [loading, setLoading] = useState(true);
-  const [project, setProject] = useState<any>(null);
-  const [task, setTask] = useState<any>(null);
-  const [inputs, setInputs] = useState<Record<string, any>>({});
-  const [output, setOutput] = useState<any>(null);
+  const [project, setProject] = useState<ProjectData | null>(null);
+  const [task, setTask] = useState<Task | null>(null);
+  const [inputs, setInputs] = useState<Record<string, unknown>>({});
+  const [output, setOutput] = useState<unknown>(null);
   const [running, setRunning] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!id) return;
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-
-  async function load() {
     try {
       const res = await fetch(`${API}/deployment/${id}`);
 
@@ -669,10 +675,10 @@ export default function PlaygroundPage() {
         return;
       }
 
-      const data = await res.json();
+      const data: ProjectData = await res.json();
       setProject(data);
 
-      if (data.metadata?.tasks?.length > 0) {
+      if (data.metadata?.tasks && data.metadata.tasks.length > 0) {
         setTask(data.metadata.tasks[0]);
       }
     } catch (error) {
@@ -680,80 +686,87 @@ export default function PlaygroundPage() {
     } finally {
       setLoading(false);
     }
-  }
-async function execute() {
-  if (!task || !project?.id) return;
+  }, [id]);
 
-  setRunning(true);
-  setOutput(null);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  try {
-    const formHasFiles = Object.values(inputs).some(
-      (v) => v instanceof File || (Array.isArray(v) && v[0] instanceof File)
-    );
+  async function execute() {
+    if (!task || !project?.id) return;
 
-    let res: Response;
+    setRunning(true);
+    setOutput(null);
 
-    if (formHasFiles) {
-      const form = new FormData();
+    try {
+      const formHasFiles = Object.values(inputs).some(
+        (v) => v instanceof File || (Array.isArray(v) && v[0] instanceof File)
+      );
 
-      form.append("task", task.name);
+      let res: Response;
 
-      Object.entries(inputs).forEach(([key, val]) => {
-        if (val instanceof File) {
-          form.append(key, val);
-        } else if (Array.isArray(val) && val[0] instanceof File) {
-          val.forEach((f: File) => form.append(key, f));
-        } else if (val !== undefined) {
-          form.append(
-            key,
-            typeof val === "object" ? JSON.stringify(val) : String(val)
-          );
-        }
+      if (formHasFiles) {
+        const form = new FormData();
+
+        form.append("task", task.name);
+
+        Object.entries(inputs).forEach(([key, val]) => {
+          if (val instanceof File) {
+            form.append(key, val);
+          } else if (Array.isArray(val) && val[0] instanceof File) {
+            val.forEach((f: File) => form.append(key, f));
+          } else if (val !== undefined) {
+            form.append(
+              key,
+              typeof val === "object" ? JSON.stringify(val) : String(val)
+            );
+          }
+        });
+
+        res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/deployment/${project.id}/invoke`,
+          {
+            method: "POST",
+            body: form,
+          }
+        );
+      } else {
+        res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/deployment/${project.id}/invoke`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              task: task.name,
+              inputs,
+            }),
+          }
+        );
+      }
+
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+
+      const data = await res.json();
+      setOutput(data);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Execution request failed.";
+      setOutput({
+        type: "error",
+        message: errorMessage,
       });
-
-      res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/deployment/${project.id}/invoke`,
-        {
-          method: "POST",
-          body: form,
-        }
-      );
-    } else {
-      res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/deployment/${project.id}/invoke`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            task: task.name,
-            inputs,
-          }),
-        }
-      );
+    } finally {
+      setRunning(false);
     }
-
-    if (!res.ok) {
-      throw new Error(await res.text());
-    }
-
-    const data = await res.json();
-    setOutput(data);
-  } catch (error: any) {
-    setOutput({
-      type: "error",
-      message: error.message || "Execution request failed.",
-    });
-  } finally {
-    setRunning(false);
   }
-}
 
   if (loading)
     return (
-      <main className="min-h-screen bg-white text-zinc-950 flex flex-col items-center justify-center gap-3 font-sans">
+      <main className="min-h-screen bg-white text-zinc-950 flex flex-col items-center justify-center gap-3 font-sans px-4">
         <Loader2 className="animate-spin text-zinc-950" size={32} />
         <span className="font-mono text-xs uppercase tracking-widest text-zinc-500">
           Initializing Playground...
@@ -774,21 +787,21 @@ async function execute() {
 
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-6">
+        <div className="mx-auto flex max-w-7xl flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 sm:px-8 py-4 sm:py-6">
           <div>
             <Link
               href={`/projects/${id}`}
-              className="mb-2 inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-zinc-500 transition hover:text-zinc-950"
+              className="mb-1.5 sm:mb-2 inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-zinc-500 transition hover:text-zinc-950"
             >
               <ArrowLeft size={14} />
               Back to Overview
             </Link>
 
-            <h1 className="text-3xl font-black tracking-tight text-zinc-950 uppercase">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950 uppercase">
               Playground
             </h1>
 
-            <p className="mt-1 text-sm text-zinc-500 font-normal">
+            <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-zinc-500 font-normal">
               Execute dynamic agent tasks with custom parameters.
             </p>
           </div>
@@ -796,7 +809,7 @@ async function execute() {
           <button
             onClick={execute}
             disabled={running || !task}
-            className="flex items-center gap-2 rounded-lg bg-zinc-950 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-zinc-950 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer shrink-0"
           >
             {running ? (
               <Loader2 className="animate-spin" size={16} />
@@ -808,20 +821,20 @@ async function execute() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-8 pt-10 space-y-8">
+      <section className="mx-auto max-w-7xl px-4 sm:px-8 pt-6 sm:pt-10 space-y-6 sm:space-y-8">
         {/* Task Selector */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-8 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 sm:mb-6">
+            <h2 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
               Select Task
             </h2>
-            <span className="font-mono text-xs font-semibold text-zinc-400 uppercase">
+            <span className="font-mono text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase">
               {project?.metadata?.tasks?.length ?? 0} TASKS REGISTERED
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-2.5">
-            {project?.metadata?.tasks?.map((t: any) => (
+          <div className="flex flex-wrap gap-2 sm:gap-2.5">
+            {project?.metadata?.tasks?.map((t) => (
               <button
                 key={t.name}
                 onClick={() => {
@@ -829,7 +842,7 @@ async function execute() {
                   setInputs({});
                   setOutput(null);
                 }}
-                className={`rounded-lg px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-wider transition cursor-pointer ${
+                className={`rounded-lg px-4 sm:px-5 py-2 sm:py-2.5 font-mono text-xs font-semibold uppercase tracking-wider transition cursor-pointer ${
                   task?.name === t.name
                     ? "bg-zinc-950 text-white shadow-sm"
                     : "border border-zinc-200 bg-zinc-50/50 text-zinc-700 hover:border-zinc-300 hover:bg-white"
@@ -842,17 +855,17 @@ async function execute() {
         </div>
 
         {/* Dynamic Inputs Form */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
-          <h2 className="text-lg font-bold text-zinc-950 tracking-tight mb-6">
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-8 shadow-sm">
+          <h2 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight mb-4 sm:mb-6">
             Task Inputs
           </h2>
 
           {!task?.inputs || task.inputs.length === 0 ? (
-            <div className="py-8 text-center font-mono text-xs uppercase tracking-widest text-zinc-400">
+            <div className="py-6 sm:py-8 text-center font-mono text-xs uppercase tracking-widest text-zinc-400">
               No input parameters required for this task.
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {task.inputs.map((input: TaskInput) => (
                 <InputField
                   key={input.name}
@@ -868,22 +881,22 @@ async function execute() {
         </div>
 
         {/* Task Output Section */}
-        <div className="rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
-          <div className="flex items-center gap-2.5 mb-6">
-            <Code2 size={20} className="text-zinc-950" />
-            <h2 className="text-lg font-bold text-zinc-950 tracking-tight">
+        <div className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-8 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
+            <Code2 size={20} className="text-zinc-950 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold text-zinc-950 tracking-tight">
               Task Output
             </h2>
           </div>
 
           {!output && (
-            <div className="flex h-32 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-200 font-mono text-xs uppercase tracking-widest text-zinc-400">
+            <div className="flex h-32 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-200 font-mono text-xs uppercase tracking-widest text-zinc-400 text-center px-4">
               <Sparkles size={20} className="mb-2 text-zinc-300" />
               Execute a task to view output payload.
             </div>
           )}
 
-          {output && <OutputPanel output={output} />}
+          {output ? <OutputPanel output={output} /> : null}
         </div>
       </section>
     </main>
