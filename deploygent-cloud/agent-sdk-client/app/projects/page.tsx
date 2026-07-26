@@ -10,7 +10,8 @@ import {
   Plus,
   ArrowUpRight,
 } from "lucide-react";
-
+import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
 export default function ProjectsPage() {
@@ -21,6 +22,35 @@ export default function ProjectsPage() {
     fetchProjects();
   }, []);
 
+  const router = useRouter();
+
+  async function handleDelete(e: React.MouseEvent, projectId: string) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const ok = window.confirm(
+      "Delete this project? This action cannot be undone.",
+    );
+
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`${API}/projects/${projectId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to delete project");
+      }
+
+      setProjects((prev: any) =>
+        prev.filter((p: any) => p.project_id !== projectId),
+      );
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete project.");
+    }
+  }
   async function fetchProjects() {
     try {
       const res = await fetch(`${API}/projects`);
@@ -104,10 +134,10 @@ export default function ProjectsPage() {
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {projects.map((project: any) => (
-            <Link
+            <div
               key={project.project_id}
-              href={`/projects/${project.project_id}`}
-              className="group relative flex flex-col justify-between rounded-xl border border-zinc-200 bg-white p-7 shadow-sm transition-all duration-200 hover:border-zinc-950 hover:shadow-md"
+              onClick={() => router.push(`/projects/${project.project_id}`)}
+              className="group relative flex cursor-pointer flex-col justify-between rounded-xl border border-zinc-200 bg-white p-7 shadow-sm transition-all duration-200 hover:border-zinc-950 hover:shadow-md"
             >
               <div>
                 <div className="flex items-center justify-between">
@@ -147,7 +177,9 @@ export default function ProjectsPage() {
                       <Server size={14} className="text-zinc-400" />
                       Port
                     </span>
-                    <span className="font-bold text-zinc-950">{project.port}</span>
+                    <span className="font-bold text-zinc-950">
+                      {project.port}
+                    </span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -160,14 +192,25 @@ export default function ProjectsPage() {
                 </div>
               </div>
 
-              <div className="mt-8 flex items-center justify-between border-t border-zinc-100 pt-4 text-xs font-bold uppercase tracking-wider text-zinc-950">
-                <span>View Agent</span>
-                <ArrowUpRight
-                  size={16}
-                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
+              <div className="mt-8 flex items-center justify-between border-t border-zinc-100 pt-4">
+                <button
+                  onClick={(e) => handleDelete(e, project.project_id)}
+                  className="flex items-center gap-2 rounded-md border border-red-200 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-red-600 transition hover:bg-red-50"
+                >
+                  <Trash2 size={14} />
+                  Delete
+                </button>
+
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-950">
+                  <span>View Agent</span>
+
+                  <ArrowUpRight
+                    size={16}
+                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </section>

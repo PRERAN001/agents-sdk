@@ -5,13 +5,17 @@ from .deploy import deploy_project
 from fastapi import HTTPException
 from .database import deployments
 from bson import ObjectId
+
+import shutil
+import psutil
 app = FastAPI(
     title="DeployGent Worker"
 )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # Next.js
+        "http://localhost:3000",
+            # Next.js
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -64,6 +68,32 @@ def get_projects():
         )
     )
 
+
+@app.delete("/projects/{project_id}")
+def delete_project(project_id: str):
+
+    project = db.projects.find_one({"_id": ObjectId(project_id)})
+
+    if not project:
+        raise HTTPException(404, "Project not found")
+
+    pid = project.get("pid")
+
+    if pid:
+        try:
+            psutil.Process(pid).kill()
+        except Exception:
+            pass
+
+    deployment_path = project["path"]
+
+    shutil.rmtree(deployment_path, ignore_errors=True)
+
+    db.projects.delete_one({"_id": ObjectId(project_id)})
+
+    return {
+        "success": True
+    }
 @app.get("/dashboard")
 def dashboard():
 
