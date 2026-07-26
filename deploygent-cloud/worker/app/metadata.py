@@ -4,6 +4,7 @@ from .loader import load_agent
 
 
 def extract_metadata(repo_dir):
+    print("extracting meta dataaaaaaaaaaaaa")
 
     agent = load_agent(
         repo_dir / "agent.py"
